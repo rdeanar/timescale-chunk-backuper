@@ -1,0 +1,7 @@
+{
+  "name": "timescale-chunk-backuper",
+  "dependencies": {
+    "envalid": "^8.0.0",
+    "zx": "^7.2.3"
+  }
+}
