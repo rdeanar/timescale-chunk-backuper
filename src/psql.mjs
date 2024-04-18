@@ -75,13 +75,14 @@ echo $error_statuses
 `
             .quiet()
             .then((result) => {
-                if (result.exitCode !== 0) {
-                    chalk.red('Error while dumping chunk.');
+                if (result.stdout.trim() !== '') {
+                    console.log('')
+                    console.log(chalk.red('Error while dumping chunk.'));
                     fs.removeSync(file_path);
-                    chalk.red(`Out file removed ${file_path}`);
+                    console.log(chalk.bgYellowBright(`Out file removed ${file_path}`));
                 }
-
-                return result;
+                // Override exit code
+                return new ProcessOutput(1, null, result.stdout, result.stderr, '', result.message);
             }).catch((e) => {
                 console.log('Error', e);
                 throw e;
