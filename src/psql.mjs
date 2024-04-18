@@ -79,7 +79,7 @@ echo $error_statuses
                     console.log('')
                     console.log(chalk.red('Error while dumping chunk.'));
                     fs.removeSync(file_path);
-                    console.log(chalk.bgYellowBright(`Out file removed ${file_path}`));
+                    console.log(chalk.bgYellowBright(`Temp out file removed ${file_path}`));
                 }
                 // Override exit code
                 return new ProcessOutput(1, null, result.stdout, result.stderr, '', result.message);
