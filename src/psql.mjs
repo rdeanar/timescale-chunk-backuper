@@ -30,9 +30,15 @@ export class PsqlInstance {
         return result;
     }
 
+    /**
+     * Get all hypertable chunks info
+     * @param schema
+     * @param hypertable
+     * @return {Promise<{primary_dimension: string, range_end: *, chunk_name: string, range_start: *}[]>}
+     */
     async getChunks(schema, hypertable) {
         const result = await this.runCommand(async () => {
-            const queryChunksSql = `\\COPY (select * from timescaledb_information.chunks where hypertable_schema='${schema}' AND hypertable_name='${hypertable}') TO stdout CSV;`
+            const queryChunksSql = `\\COPY (select * from timescaledb_information.chunks where hypertable_schema='${schema}' AND hypertable_name='${hypertable}' order by range_start ASC) TO stdout CSV;`
             return $` --expanded -c ${queryChunksSql}`.quiet().nothrow();
         });
 
