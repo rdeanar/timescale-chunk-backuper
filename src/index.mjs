@@ -1,7 +1,7 @@
 #!/usr/bin/env zx
 
 import 'zx/globals'
-import {assertBinariesExist, parsePgPassFile} from "./utils.mjs";
+import {assertBinariesExist, formatTime, parsePgPassFile} from "./utils.mjs";
 import options from "./options.mjs";
 import {PsqlInstance} from "./psql.mjs";
 import {State} from "./state.mjs";
@@ -45,22 +45,32 @@ for (let i = 0; i < chunks.length; i++) {
     }
 
 
-    console.log('Process chunk', chunkInfo.chunk_name, `From ${chunkInfo.range_start.replace(' 00:00:00+00','')} to ${chunkInfo.range_end.replace(' 00:00:00+00','')}`);
+    console.log('Process chunk', chunkInfo.chunk_name, `From ${chunkInfo.range_start.replace(' 00:00:00+00', '')} to ${chunkInfo.range_end.replace(' 00:00:00+00', '')}`);
+
+    const dumpTimeStart = new Date().getTime();
 
     const dumpChunkResult = await spinner(
         `Dumping chunk ${chunkInfo.chunk_name}...`,
         () => psql.dumpChunk(options.schema, options.hypertable, chunkInfo.chunk_name, chunkInfo.primary_dimension, chunkInfo.range_start, chunkInfo.range_end, tempOutFilePath)
     );
 
+    const shouldWriteToState = latestChunkReached;
     if ((await dumpChunkResult).exitCode === 0) {
-        await fs.move(tempOutFilePath, outFilePath, {overwrite: true}, err => {
+        await fs.move(tempOutFilePath, outFilePath, {overwrite: true}, async err => {
             if (err) {
                 console.error(`Error while moving temp file to destination. Keep temp file: ${tempOutFilePath}`)
 
                 process.exit(1);
             }
-            console.log('File written: ', outFilePath);
-            state.writeLatestChunkName(chunkInfo.chunk_name);
+
+            if (shouldWriteToState) {
+                state.writeLatestChunkName(chunkInfo.chunk_name);
+            }
+
+            const duration = formatTime(new Date().getTime() - dumpTimeStart);
+            const fileInfo = await $`du -hs ${outFilePath}`.quiet().nothrow();
+
+            console.log(`${duration} ${fileInfo}`);
         });
     }
 }
