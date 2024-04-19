@@ -1,5 +1,6 @@
 export class PsqlInstance {
     /**
+     * @param dbCredentials
      * @param dbCredentials.host {string}
      * @param dbCredentials.port {string}
      * @param dbCredentials.db {string}
