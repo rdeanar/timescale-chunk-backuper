@@ -28,10 +28,10 @@ const pgPass = makeValidator((value) => {
 
 const options = cleanEnv(argv, {
     pgPass: pgPass({
-        default: path.join((await $`pwd`).toString().trim(), '.pgpass'),
+        default: path.join((await $`pwd`.quiet()).toString().trim(), '.pgpass'),
     }),
     outDir: dir({
-        default: (await $`pwd`).toString().trim(),
+        default: (await $`pwd`.quiet()).toString().trim(),
     }),
     hypertable: str({
         desc: 'hypertable name'
