@@ -54,7 +54,7 @@ for (let i = 0; i < chunks.length; i++) {
         () => psql.dumpChunk(options.schema, options.hypertable, chunkInfo.chunk_name, chunkInfo.primary_dimension, chunkInfo.range_start, chunkInfo.range_end, tempOutFilePath)
     );
 
-    const shouldWriteToState = latestChunkReached;
+    const shouldWriteToState = latestChunkReached || !latestChunkName;
     if ((await dumpChunkResult).exitCode === 0) {
         await fs.move(tempOutFilePath, outFilePath, {overwrite: true}, async err => {
             if (err) {
